@@ -1,0 +1,4 @@
+{
+    "random_state": 200,
+    "batch_size": 8
+}
