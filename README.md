@@ -1,6 +1,6 @@
 # Personally identifiable information (PII) Redactor with RoBERTa
 
-PII Redactor model using RoBERTa. The goal of this model is to remove personally identifiable information from text files.
+PII Redactor model using RoBERTa. The goal of this model is to remove personally identifiable information from text documents.
 
 PII includes:
 
