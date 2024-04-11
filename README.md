@@ -60,4 +60,4 @@ This project is provided under the Apache-2.0 License. Please see the [LICENSE](
 
 ## Contact Information
 
-Repository created by Ready Tensor, Inc. (https://www.readytensor.ai/)
+Repository created by Ready Tensor, Inc. Visit https://www.readytensor.ai/
