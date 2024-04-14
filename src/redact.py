@@ -50,10 +50,13 @@ def redact(
         random_state=random_state,
     )
 
-    redactor.redact_from_directory(
-        input_path=input_dir_path,
-        output_path=output_dir_path,
-    )
+    for format in ["txt", "pdf"]:
+        print(f"Redacting {format} documents...")
+        redactor.redact_from_directory(
+            input_path=input_dir_path,
+            output_path=output_dir_path,
+            file_format=format,
+        )
 
 
 if __name__ == "__main__":

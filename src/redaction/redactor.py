@@ -5,7 +5,7 @@ import warnings
 import pandas as pd
 from config import paths
 from tqdm import tqdm
-from typing import List, Tuple, Dict
+from typing import List, Dict
 from processing.dataset import dataset
 from torch.utils.data import DataLoader
 from transformers import RobertaForTokenClassification, RobertaTokenizerFast
@@ -14,6 +14,7 @@ from redaction.FakeGenerator import (
     get_real_fake_name_mapping,
     get_real_fake_entity_mapping,
 )
+from utils import read_text_files, read_pdf_files, save_text_to_pdf1
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 warnings.filterwarnings("ignore")
@@ -159,31 +160,6 @@ class Redactor:
                 "tokens": tokens,
             }
         self.dataframe = prediction_df
-
-    def read_text_files(self, path: str) -> Tuple[List[str], List[str]]:
-        """
-        Reads text files from the specified directory.
-
-        Args:
-            path (str): The directory path containing the text files.
-
-        Returns:
-            Tuple[List[str], List[str]]: A tuple containing two lists - file names and corresponding document texts.
-
-        This method lists all files in the specified directory with the '.txt' extension.
-        It then reads the content of each text file and appends it to a list along with the corresponding file names.
-        Finally, it returns a tuple containing two lists - file names and corresponding document texts.
-        """
-        data = []
-        file_names = [i for i in os.listdir(path) if i.endswith(".txt")]
-        file_paths = [os.path.join(path, i) for i in file_names]
-
-        for f in file_paths:
-            with open(f, "r") as file:
-                text = file.read()
-                data.append(text)
-
-        return file_names, data
 
     def create_dataset(
         self, file_names: list[str], documents_list: list[str]
@@ -482,20 +458,30 @@ class Redactor:
         self.dataframe["location_real_fake_mapping"] = location_real_fake_mapping
         self.dataframe["date_real_fake_mapping"] = date_real_fake_mapping
 
-    def save_redacted_documents(self, path: str = paths.OUTPUTS_DIR):
+    def save_redacted_documents(
+        self, path: str = paths.OUTPUTS_DIR, file_format: str = "txt"
+    ):
         os.makedirs(path, exist_ok=True)
         for _, row in self.dataframe.iterrows():
             redacted_document = row["redacted_document"]
             id = row["id"]
-            with open(f"{path}/{id}", "w") as file:
-                file.write(redacted_document)
+            if file_format == "txt":
+                with open(f"{path}/{id}", "w") as file:
+                    file.write(redacted_document)
+            elif file_format == "pdf":
+                save_text_to_pdf1(redacted_document, f"{path}/{id}")
 
     def redact_from_directory(
         self,
         input_path: str = paths.INPUTS_DIR,
-        output_path=paths.OUTPUTS_DIR,
+        output_path: str = paths.OUTPUTS_DIR,
+        file_format: str = "txt",
     ):
-        file_names, documents_list = self.read_text_files(input_path)
+        file_names, documents_list = (
+            read_text_files(input_path)
+            if file_format == "txt"
+            else read_pdf_files(input_path)
+        )
         data_loader = self.create_dataset(
             file_names=file_names, documents_list=documents_list
         )
@@ -515,8 +501,12 @@ class Redactor:
             location_mapping = row["location_real_fake_mapping"]
             date_mapping = row["date_real_fake_mapping"]
             offset = row["offset_mapping"]
+            predictions = row["predictions"]
             redacted_document = map_real_to_fake_with_position(
-                document, name_mapping, offset
+                text=document,
+                mapping_dict=name_mapping,
+                offset=offset,
+                predictions=predictions,
             )
 
             redacted_document = replace_values_in_string(
@@ -533,7 +523,7 @@ class Redactor:
         redacted_docs = [self.redact_urls_in_document(i) for i in redacted_docs]
 
         self.dataframe["redacted_document"] = redacted_docs
-        self.save_redacted_documents(path=output_path)
+        self.save_redacted_documents(path=output_path, file_format=file_format)
 
 
 def replace_values_in_string(text: str, mapping: Dict[str, str]) -> str:
@@ -553,15 +543,17 @@ def replace_values_in_string(text: str, mapping: Dict[str, str]) -> str:
 
 
 def map_real_to_fake_with_position(
-    text: str, mapping_dict: dict, offset: pd.Series
+    text: str, mapping_dict: dict, offset: pd.Series, predictions: pd.Series
 ) -> str:
     """
-    Redacts the names in a text based on mapping_dict and offsets indicating positions of the real names.
+    Redacts the names in a text based on mapping_dict, offsets, and predictions indicating positions
+    and the nature of the real names.
 
     Args:
         - text (str): Text to be redacted.
         - mapping_dict (dict): Dictionary mapping real names to fake names.
         - offset (pd.Series): Pandas series with positions of names in the text.
+        - predictions (pd.Series): Pandas series with prediction labels for each token, must be the same length as offset.
 
     Returns (str): Redacted text.
     """
@@ -576,8 +568,11 @@ def map_real_to_fake_with_position(
     # Replacement function
     def replace_match(match):
         start_index = match.start()  # Get the start index of the matched pattern
-        # Check if the start_index is within any of the specified positions
-        if any(start <= start_index < end for start, end in offset):
+        # Check if the start_index is within any of the specified positions and predictions are 'B-Person' or 'I-Person'
+        if any(
+            start <= start_index < end and predictions[i] in {"B-PERSON", "I-PERSON"}
+            for i, (start, end) in enumerate(offset)
+        ):
             key = match.group(
                 0
             ).lower()  # Get the matched key in lowercase to lookup in the dictionary
@@ -587,7 +582,7 @@ def map_real_to_fake_with_position(
         else:
             return match.group(
                 0
-            )  # Return the original text if not within specified positions
+            )  # Return the original text if not within specified positions or labels don't match
 
     # Replace matches in the text
     return pattern.sub(replace_match, text)
