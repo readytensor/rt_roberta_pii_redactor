@@ -1,6 +1,6 @@
 # Personally identifiable information (PII) Redactor with RoBERTa
 
-PII Redactor model using RoBERTa. The goal of this model is to remove personally identifiable information from text files.
+PII Redactor model using RoBERTa. The goal of this model is to remove personally identifiable information from text documents.
 
 PII includes:
 
@@ -56,8 +56,8 @@ pip install -r requirements.txt
 
 ## LICENSE
 
-This project is provided under the MIT License. Please see the [LICENSE](LICENSE) file for more information.
+This project is provided under the Apache-2.0 License. Please see the [LICENSE](LICENSE) file for more information.
 
 ## Contact Information
 
-Repository created by Ready Tensor, Inc. (https://www.readytensor.ai/)
+Repository created by Ready Tensor, Inc. Visit https://www.readytensor.ai/
