@@ -29,7 +29,7 @@ The following is the directory structure of the project:
   - **`/outputs/`**: The outputs directory will contain the output files after running the model on the input files.
 - **`src/`**: This directory holds the source code for the project. It is further divided into various subdirectories:
   - **`config/`**: for configuration files for data preprocessing, model hyperparameters, paths, etc.
-  - **`redact.py`**: This script is used to run the model on the text files inside **inputs** directory.
+  - **`main.py`**: This script is used to run the model on the text files inside **inputs** directory.
   - **`utils.py`**: This script contains utility functions used by the other scripts.
 - **`.gitignore`**: This file specifies the files and folders that should be ignored by Git.
 - **`LICENSE`**: This file contains the license for the project.
@@ -39,9 +39,9 @@ The following is the directory structure of the project:
 
 ## Usage
 
-- Place the data you want to redact in a .txt format
-- Move the .txt files inside the **/model_inputs_outputs/inputs** directory
-- Run the **redact.py** script
+- Place the data you want to redact in a .txt or .pdf format
+- Move the files inside the **/model_inputs_outputs/inputs** directory
+- Run the **main.py** script
 - Get the result files from **/model_inputs_outputs/outputs** directory
 
 
