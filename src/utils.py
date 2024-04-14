@@ -6,9 +6,7 @@ import pdfplumber
 import numpy as np
 import pandas as pd
 from typing import Dict, Tuple, List
-from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
 from reportlab.platypus import Paragraph, SimpleDocTemplate
 from reportlab.lib.styles import getSampleStyleSheet
 
@@ -131,7 +129,7 @@ def read_pdf_files(dir_path: str) -> List[str]:
     return file_names, result
 
 
-def save_text_to_pdf1(text_string, pdf_path):
+def save_text_to_pdf(text_string, pdf_path):
     # Create a PDF document using SimpleDocTemplate which is more suited for flowables like Paragraph
     doc = SimpleDocTemplate(pdf_path, pagesize=letter)
     story = []  # This will hold the elements of the document
@@ -153,33 +151,6 @@ def save_text_to_pdf1(text_string, pdf_path):
 
     # Build the PDF using the story which contains all the Paragraph objects
     doc.build(story)
-
-
-def save_text_to_pdf(text_string, pdf_path):
-    # Create a canvas for the PDF
-    c = canvas.Canvas(pdf_path, pagesize=letter)
-    width, height = letter  # Get the width and height of the page
-    text_object = c.beginText(40, height - 40)  # Start the text object
-    text_object.setFont("Helvetica", 12)  # Set the font and size
-
-    # Split the text string into lines
-    lines = text_string.split("\n")
-
-    for line in lines:
-        # Add each line to the text object
-        text_object.textLine(line.strip())
-
-        # Check if we have reached the bottom of the page
-        if text_object.getY() < 40:
-            # Start a new page
-            c.drawText(text_object)
-            c.showPage()
-            text_object = c.beginText(40, height - 40)
-            text_object.setFont("Helvetica", 12)
-
-    # Draw the text on the canvas
-    c.drawText(text_object)
-    c.save()
 
 
 def read_text_files(path: str) -> Tuple[List[str], List[str]]:

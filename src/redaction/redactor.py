@@ -13,8 +13,9 @@ from redaction.FakeGenerator import (
     FakeGenerator,
     get_real_fake_name_mapping,
     get_real_fake_entity_mapping,
+    get_real_fake_date_mapping,
 )
-from utils import read_text_files, read_pdf_files, save_text_to_pdf1
+from utils import read_text_files, read_pdf_files, save_text_to_pdf
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 warnings.filterwarnings("ignore")
@@ -434,7 +435,6 @@ class Redactor:
             dates = row["dates"]
 
             fake_names = self.fake.generate_fake_names(num_names=len(names))
-            fake_dates = self.fake.generate_fake_dates(num_dates=len(dates))
             fake_locations = self.fake.generate_fake_locations(
                 num_locations=len(locations)
             )
@@ -449,9 +449,7 @@ class Redactor:
             )
             location_real_fake_mapping.append(location_mapping)
 
-            date_mapping = get_real_fake_entity_mapping(
-                real_entity=dates, fake_entity=fake_dates
-            )
+            date_mapping = get_real_fake_date_mapping(real_dates=dates)
             date_real_fake_mapping.append(date_mapping)
 
         self.dataframe["name_real_fake_mapping"] = name_real_fake_mapping
@@ -469,7 +467,7 @@ class Redactor:
                 with open(f"{path}/{id}", "w") as file:
                     file.write(redacted_document)
             elif file_format == "pdf":
-                save_text_to_pdf1(redacted_document, f"{path}/{id}")
+                save_text_to_pdf(redacted_document, f"{path}/{id}")
 
     def redact_from_directory(
         self,
@@ -507,13 +505,19 @@ class Redactor:
                 mapping_dict=name_mapping,
                 offset=offset,
                 predictions=predictions,
+                entity="PERSON",
             )
 
             redacted_document = replace_values_in_string(
                 redacted_document, location_mapping
             )
-            redacted_document = replace_values_in_string(
-                redacted_document, date_mapping
+
+            redacted_document = map_real_to_fake_with_position(
+                text=redacted_document,
+                mapping_dict=date_mapping,
+                offset=offset,
+                predictions=predictions,
+                entity="DATE",
             )
             redacted_docs.append(redacted_document)
             progress_bar.update(1)
@@ -543,7 +547,11 @@ def replace_values_in_string(text: str, mapping: Dict[str, str]) -> str:
 
 
 def map_real_to_fake_with_position(
-    text: str, mapping_dict: dict, offset: pd.Series, predictions: pd.Series
+    text: str,
+    mapping_dict: dict,
+    offset: pd.Series,
+    predictions: pd.Series,
+    entity: str,
 ) -> str:
     """
     Redacts the names in a text based on mapping_dict, offsets, and predictions indicating positions
@@ -554,6 +562,7 @@ def map_real_to_fake_with_position(
         - mapping_dict (dict): Dictionary mapping real names to fake names.
         - offset (pd.Series): Pandas series with positions of names in the text.
         - predictions (pd.Series): Pandas series with prediction labels for each token, must be the same length as offset.
+        - entity (str): The type of entity to redact.
 
     Returns (str): Redacted text.
     """
@@ -570,7 +579,8 @@ def map_real_to_fake_with_position(
         start_index = match.start()  # Get the start index of the matched pattern
         # Check if the start_index is within any of the specified positions and predictions are 'B-Person' or 'I-Person'
         if any(
-            start <= start_index < end and predictions[i] in {"B-PERSON", "I-PERSON"}
+            start <= start_index < end
+            and predictions[i] in {f"B-{entity}", f"I-{entity}"}
             for i, (start, end) in enumerate(offset)
         ):
             key = match.group(

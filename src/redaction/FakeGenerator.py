@@ -1,6 +1,8 @@
 import random
 from faker import Faker
 from typing import Tuple, List, Dict
+from datetime import timedelta
+from dateutil import parser
 
 
 class FakeGenerator:
@@ -150,27 +152,6 @@ class FakeGenerator:
 
         return locations
 
-    def generate_fake_dates(self, num_dates: int = 100) -> List[str]:
-        """
-        Generates fake dates.
-
-        Args:
-            num_dates (int): Number of fake dates to generate.
-
-        Returns:
-            List[str]: A list of fake dates.
-
-        This method generates fake dates using the Faker library.
-        It randomly selects between two date patterns ("%y/%m/%d" and default) for each date.
-        """
-        dates = []
-        random.seed(self.random_state)
-        for _ in range(num_dates):
-            random_dates = [self.fake.date(pattern="%y/%m/%d"), self.fake.date()]
-            random_date = random.choice(random_dates)
-            dates.append(random_date)
-        return dates
-
     def generate_fake_urls(self, num_urls: int = 100) -> List[str]:
         """
         Generates fake URLs.
@@ -264,8 +245,44 @@ def get_real_fake_entity_mapping(
     Returns:
         Dict[str, str]: A mapping between real entities and their fake counterparts.
 
-    This function generates a mapping between real entities and their corresponding fake counterparts
-    by pairing elements from the lists of real entities and fake entities.
     """
     mappings = {real_entity[i]: fake_entity[i] for i in range(len(real_entity))}
     return mappings
+
+
+def get_real_fake_date_mapping(real_dates: List[str]) -> Dict[str, str]:
+    """
+    Generates a mapping between real dates and their fake counterparts.
+
+    Args:
+        real_dates (List[str]): List of real entities.
+
+    Returns:
+        Dict[str, str]: A mapping between real dates and their fake counterparts.
+    """
+    mappings = {}
+    document_date_offset = random.randint(-365, 365)
+    format_choice = random.choice(["%Y-%m-%d", "%m/%d/%Y"])
+    for date_str in real_dates:
+        try:
+            # Attempt to parse the date using dateutil.parser
+            date = parser.parse(date_str, dayfirst=False, yearfirst=False)
+            event_date_offset = random.randint(-10, 10)
+
+            # Calculate the fake date
+            offset = document_date_offset + event_date_offset
+            delta = timedelta(days=offset)
+            fake_date = date + delta
+            fake_date_str = fake_date.strftime(format_choice)
+
+            # Add to the mappings if successfully parsed and processed
+            mappings[date_str] = fake_date_str
+
+        except ValueError:
+            mappings[date_str] = "DATE REDACTED"
+
+    sorted_mapping = sorted(
+        mappings.items(), key=lambda item: len(item[0]), reverse=True
+    )
+    sorted_mapping = dict(sorted_mapping)
+    return sorted_mapping
