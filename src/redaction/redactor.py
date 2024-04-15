@@ -581,25 +581,27 @@ def map_real_to_fake_with_position(
     # Convert all keys in mapping_dict to lowercase to ensure case-insensitive matching
     mapping_dict = {k.lower(): v for k, v in mapping_dict.items()}
 
-    # Replacement function
     def replace_match(match):
         start_index = match.start()  # Get the start index of the matched pattern
-        # Check if the start_index is within any of the specified positions and predictions are 'B-Person' or 'I-Person'
-        if any(
-            start <= start_index < end
-            and predictions[i] in {f"B-{entity}", f"I-{entity}"}
-            for i, (start, end) in enumerate(offset)
-        ):
-            key = match.group(
-                0
-            ).lower()  # Get the matched key in lowercase to lookup in the dictionary
-            return mapping_dict.get(
-                key, match.group(0)
-            )  # Use the original match as fallback
+        key = match.group(
+            0
+        ).lower()  # Get the matched key in lowercase to lookup in the dictionary
+
+        if entity != "DATE":
+            # If entity is not 'Date', check if the start_index is within any of the specified positions
+            if any(
+                start <= start_index < end
+                and predictions[i] in {f"B-{entity}", f"I-{entity}"}
+                for i, (start, end) in enumerate(offset)
+            ):
+                return mapping_dict.get(
+                    key, match.group(0)
+                )  # Use the original match as fallback
         else:
-            return match.group(
-                0
-            )  # Return the original text if not within specified positions or labels don't match
+            # If entity is 'Date', directly replace without checking offsets
+            return mapping_dict.get(key, match.group(0))
+
+        return match.group(0)  # Return the original text if conditions are not met
 
     # Replace matches in the text
     return pattern.sub(replace_match, text)
