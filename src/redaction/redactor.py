@@ -457,8 +457,10 @@ class Redactor:
         self.dataframe["date_real_fake_mapping"] = date_real_fake_mapping
 
     def save_redacted_documents(
-        self, path: str = paths.OUTPUTS_DIR, file_format: str = "txt",
-        file_prefix="REDACTED_"
+        self,
+        path: str = paths.OUTPUTS_DIR,
+        file_format: str = "txt",
+        file_prefix="REDACTED_",
     ):
         os.makedirs(path, exist_ok=True)
         for _, row in self.dataframe.iterrows():

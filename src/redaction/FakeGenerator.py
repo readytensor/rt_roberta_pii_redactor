@@ -87,8 +87,6 @@ class FakeGenerator:
         This method generates fake names using the Faker library for various locales.
         It shuffles the generated names and combines them into tuples of (first_name, middle_name, last_name).
         """
-
-        random.seed(self.random_state)
         locales = ["de_De", "en_GB", "en_US", "es_ES", "fr_FR"]
         first_names = []
         middle_names = []
@@ -96,7 +94,6 @@ class FakeGenerator:
 
         for l in locales:
             fake = Faker(l)
-            fake.seed_instance(self.random_state)
             limit = (
                 num_names // len(locales)
                 if num_names // len(locales) != 0
