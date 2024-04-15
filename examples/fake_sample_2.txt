@@ -1,0 +1,22 @@
+Name: Emily Cortez  
+DOB: 08/15/1973  
+MRN: 302198765  
+PCP: Dr. Samuel Kendricks, MD  
+Legal Name: Emily Torres  
+
+Progress Notes  
+Dr. Angela Pearson at 04/14/2024 1015  
+
+Chief Complaint(s)  
+Patient reports persistent lower back pain.
+
+HPI  
+Emily Torres is a 50-year-old female who is here today for a routine follow-up of chronic lower back pain, which she describes as a constant dull ache with occasional sharp pains during certain movements. Her initial diagnosis was made approximately five years ago, and she has been on a pain management plan that includes physical therapy and intermittent use of NSAIDs. Recently, she has reported an increase in pain intensity, particularly after long periods of sitting. An MRI performed six months ago showed mild disc degeneration at L4-L5 but no significant nerve impingement. She has tried various therapies, including acupuncture and chiropractic adjustments, with minimal relief. Ms. Torres works as an administrative assistant, a role that requires prolonged periods of sitting, which she believes exacerbates her condition.
+
+Treatment Updates  
+Given the increase in symptoms, we discussed the possibility of adjusting her pain management strategy. Today, we are initiating a trial of a low-dose muscle relaxant to see if it helps alleviate her symptoms better than her current regimen. We will review her response to the medication in six weeks.
+
+Additional Comments  
+Ms. Torres has been advised to modify her workstation to be more ergonomic and to take short, frequent breaks from sitting to alleviate pressure on her back. She remains active with gentle yoga and walking, which she finds helpful. Plans to refer her to a pain specialist if no improvement is seen with current changes.
+
+This example uses fictional data suitable for PII redaction testing without involving real personal information.

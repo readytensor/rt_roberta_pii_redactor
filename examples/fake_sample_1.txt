@@ -1,0 +1,8 @@
+Patient Name: John Doe
+Date of Birth: January 1, 1990
+Medical Record Number: 123456789
+Address: 123 Main St, Anytown, USA
+Date of Visit: April 14, 2024
+Diagnosis: Hypertension
+Prescribed Medication: Lisinopril 10mg daily
+Physician's Notes: Patient to follow up in one month to reassess blood pressure levels.

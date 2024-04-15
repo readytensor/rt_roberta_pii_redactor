@@ -1,0 +1,27 @@
+Name: Michael Johnson  
+DOB: 03/22/1984 
+Phone: (111) 222-3333
+MRN: 845602314  
+PCP: Dr. Laura Greene, MD  
+Legal Name: Michael Johnson  
+
+Progress Notes  
+Dr. Clara Rodriguez at 04/14/2024 0915  
+
+Chief Complaint(s)  
+Persistent headaches and occasional migraines.
+
+HPI  
+Michael Johnson is a 40-year-old male presenting for evaluation of recurrent headaches, which he describes as moderate to severe in intensity, often located around the temples and sometimes accompanied by photophobia and nausea. The headaches have been occurring for around two years, but have become more frequent over the past six months. He reports that stress and lack of sleep seem to trigger the episodes. Mr. Johnson has a family history of migraines; his mother and sister have been diagnosed with migraines in the past.
+
+Medical History  
+No history of significant illness or surgery for MJ. Regularly takes over-the-counter ibuprofen for headaches, which provides partial relief. No known drug allergies.
+
+Examination Findings  
+Vital signs are stable. Physical examination, including neurological assessment, is unremarkable. No signs of neurological deficit. 
+
+Assessment and Plan  
+The pattern and symptoms suggest a diagnosis of tension headaches with occasional migraines. Recommended initiating a preventive medication, Topiramate, and continuing the use of ibuprofen as needed for acute episodes. Advised on lifestyle modifications including stress management techniques and maintaining a regular sleep schedule. Follow-up in 3 months or sooner if symptoms worsen. Consideration for referral to a neurologist if no improvement with current management plan.
+
+Additional Comments  
+Michael is encouraged to keep a headache diary to track the frequency, duration, triggers, and severity of the headaches, which will be helpful for further management in follow-up visits.
