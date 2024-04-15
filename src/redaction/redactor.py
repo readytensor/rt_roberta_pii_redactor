@@ -457,12 +457,13 @@ class Redactor:
         self.dataframe["date_real_fake_mapping"] = date_real_fake_mapping
 
     def save_redacted_documents(
-        self, path: str = paths.OUTPUTS_DIR, file_format: str = "txt"
+        self, path: str = paths.OUTPUTS_DIR, file_format: str = "txt",
+        file_prefix="REDACTED_"
     ):
         os.makedirs(path, exist_ok=True)
         for _, row in self.dataframe.iterrows():
             redacted_document = row["redacted_document"]
-            id = row["id"]
+            id = file_prefix + row["id"]
             if file_format == "txt":
                 with open(f"{path}/{id}", "w") as file:
                     file.write(redacted_document)
@@ -480,6 +481,10 @@ class Redactor:
             if file_format == "txt"
             else read_pdf_files(input_path)
         )
+        if len(file_names) == 0:
+            print(f"No {file_format} documents found in the input directory.")
+            return
+
         data_loader = self.create_dataset(
             file_names=file_names, documents_list=documents_list
         )
