@@ -588,8 +588,7 @@ def map_real_to_fake_with_position(
 
     def replace_match(match):
         start_index = match.start()  # Get the start index of the matched pattern
-        if entity == "PERSON":
-            print("here", start_index)
+
         key = match.group(
             0
         ).lower()  # Get the matched key in lowercase to lookup in the dictionary
@@ -601,7 +600,6 @@ def map_real_to_fake_with_position(
                 and predictions[i] in {f"B-{entity}", f"I-{entity}"}
                 for i, (start, end) in enumerate(offset)
             ):
-                # print("here", start_index)
                 return mapping_dict.get(
                     key, match.group(0)
                 )  # Use the original match as fallback
