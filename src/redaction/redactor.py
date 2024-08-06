@@ -17,6 +17,11 @@ from redaction.FakeGenerator import (
 )
 from utils import read_text_files, read_pdf_files, save_text_to_pdf
 
+device = torch.device(
+    "cuda"
+    if torch.cuda.is_available()
+    else "mps" if torch.backends.mps.is_available() else "cpu"
+)
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 warnings.filterwarnings("ignore")
 
@@ -240,6 +245,7 @@ class Redactor:
         id2label = {k: v for v, k in self.label2id.items()}
 
         self.model.eval()
+        self.model.to(device)
 
         nb_eval_steps = 0
         all_predictions = []
@@ -247,8 +253,8 @@ class Redactor:
         with torch.no_grad():
             progress_bar = tqdm(total=len(data_loader), desc="Batch progress")
             for _, batch in enumerate(data_loader):
-                ids = batch["ids"]
-                mask = batch["mask"]
+                ids = batch["ids"].to(device)
+                mask = batch["mask"].to(device)
 
                 outputs = self.model(input_ids=ids, attention_mask=mask)
                 eval_logits = outputs.logits
@@ -434,9 +440,9 @@ class Redactor:
             locations = row["locations"]
             dates = row["dates"]
 
-            fake_names = self.fake.generate_fake_names(num_names=len(names))
+            fake_names = self.fake.generate_fake_names(num_names=len(names) * 2)
             fake_locations = self.fake.generate_fake_locations(
-                num_locations=len(locations)
+                num_locations=len(locations) * 2
             )
 
             name_mapping = get_real_fake_name_mapping(
@@ -577,28 +583,30 @@ def map_real_to_fake_with_position(
     pattern = re.compile(
         "|".join(re.escape(key) for key in mapping_dict.keys()), re.IGNORECASE
     )
-
     # Convert all keys in mapping_dict to lowercase to ensure case-insensitive matching
     mapping_dict = {k.lower(): v for k, v in mapping_dict.items()}
 
     def replace_match(match):
         start_index = match.start()  # Get the start index of the matched pattern
+        if entity == "PERSON":
+            print("here", start_index)
         key = match.group(
             0
         ).lower()  # Get the matched key in lowercase to lookup in the dictionary
 
-        if entity != "DATE":
-            # If entity is not 'Date', check if the start_index is within any of the specified positions
+        if entity not in ["DATE", "PERSON"]:
+            # If entity is not 'Date' or 'Person', check if the start_index is within any of the specified positions
             if any(
                 start <= start_index < end
                 and predictions[i] in {f"B-{entity}", f"I-{entity}"}
                 for i, (start, end) in enumerate(offset)
             ):
+                # print("here", start_index)
                 return mapping_dict.get(
                     key, match.group(0)
                 )  # Use the original match as fallback
         else:
-            # If entity is 'Date', directly replace without checking offsets
+            # If entity is 'Date' or 'Person', directly replace without checking offsets
             return mapping_dict.get(key, match.group(0))
 
         return match.group(0)  # Return the original text if conditions are not met
